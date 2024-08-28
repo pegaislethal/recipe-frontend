@@ -12,10 +12,13 @@ function App() {
     <>
       <Header/>
       <SearchBar/>
+      <div className="grid grid-cols-4 px-[120px] py-[50px]">
       <Card/>
       <Card/>
       <Card/>
       <Card/>
+      </div>
+      
       <Footer/>
     </>
   )

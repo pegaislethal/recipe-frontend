@@ -1,9 +1,20 @@
 import React from "react";
+import { useForm } from "react-hook-form";
 import Header from "../Header";
 import Footer from "../Footer";
 import food from "../../assets/food.jpg";
 
 const LoginPage = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = (data) => {
+    console.log("Login Submitted", data);
+  };
+
   return (
     <>
       <Header />
@@ -12,11 +23,11 @@ const LoginPage = () => {
           <img
             src={food}
             alt="Login"
-            className="h-[500px] w-48 mr-6 object-cover" // Matching image size with SignUpPage
+            className="h-[500px] w-48 mr-6 object-cover"
           />
           <div className="flex-1">
             <h1 className="text-center text-xl mb-3">Login</h1>
-            <form className="space-y-3">
+            <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
               <div>
                 <label
                   className="block text-sm font-medium text-gray-700"
@@ -25,11 +36,19 @@ const LoginPage = () => {
                   Email
                 </label>
                 <input
+                  {...register("email", { required: "Email is required" })}
                   type="email"
                   id="email"
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-sm"
+                  className={`mt-1 block w-full p-2 border rounded-md text-sm ${
+                    errors.email ? "border-red-500" : "border-gray-300"
+                  }`}
                   placeholder="Enter your email"
                 />
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
               <div>
                 <label
@@ -39,11 +58,19 @@ const LoginPage = () => {
                   Password
                 </label>
                 <input
+                  {...register("password", { required: "Password is required" })}
                   type="password"
                   id="password"
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-sm"
+                  className={`mt-1 block w-full p-2 border rounded-md text-sm ${
+                    errors.password ? "border-red-500" : "border-gray-300"
+                  }`}
                   placeholder="Enter your password"
                 />
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
               <button
                 type="submit"

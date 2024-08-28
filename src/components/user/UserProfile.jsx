@@ -1,10 +1,13 @@
 import React from "react";
 import user from "../../assets/user.png";
+import { FaArrowLeft } from "react-icons/fa";
+import { NavLink } from "react-router-dom";
 
 const UserProfile = () => {
   return (
     <div className="container mx-auto p-4 max-w-screen-md">
       <div className="text-center mb-8">
+        <li><NavLink to='/'><FaArrowLeft /></NavLink></li>
         <h1 className="text-3xl font-bold text-gray-800 mb-2">User Profile</h1>
         <p className="text-gray-600">This is a user profile page.</p>
       </div>
