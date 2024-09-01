@@ -10,7 +10,7 @@ function App() {
 
   return (
     <>
-      <Header/>
+      {/* <Header/>
       <SearchBar/>
       <div className="grid grid-cols-4 px-[120px] py-[50px]">
       <Card/>
@@ -19,7 +19,7 @@ function App() {
       <Card/>
       </div>
       
-      <Footer/>
+      <Footer/> */}
     </>
   )
 }

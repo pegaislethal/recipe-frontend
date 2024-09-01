@@ -1,18 +1,41 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import axios from "axios"; // Import axios for HTTP requests
 import Header from "../Header";
 import Footer from "../Footer";
 import food from "../../assets/food.jpg";
+import {Axios} from "../../../services/AxiosInstance"
 
 const SignUpPage = () => {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log("Form Submitted", data);
+  const onSubmit = async (data) => {
+    console.log("Submitting data:", data);
+    try {
+      const response = await Axios.post("/admin/signup", data);
+      console.log("Form Submitted Successfully:", response.data);
+      alert("Signup successful!");
+    } catch (error) {
+      console.error("There was an error signing up!", error);
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        console.error("Error response data:", error.response.data);
+        alert(`Signup failed: ${error.response.data.message}`);
+      } else if (error.request) {
+        // Request was made but no response was received
+        console.error("No response received:", error.request);
+        alert("Signup failed: No response from the server.");
+      } else {
+        // Something else caused the error
+        console.error("Error message:", error.message);
+        alert(`Signup failed: ${error.message}`);
+      }
+    }
   };
 
   return (

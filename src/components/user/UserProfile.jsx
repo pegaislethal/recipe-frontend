@@ -2,9 +2,14 @@ import React from "react";
 import user from "../../assets/user.png";
 import { FaArrowLeft } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
+import Footer from "../Footer";
+import Header from "../Header";
 
 const UserProfile = () => {
+ 
   return (
+    <>
+    <Header/>
     <div className="container mx-auto p-4 max-w-screen-md">
       <div className="text-center mb-8">
         <li><NavLink to='/'><FaArrowLeft /></NavLink></li>
@@ -51,21 +56,15 @@ const UserProfile = () => {
             <p className="text-gray-700 mb-2">
               <strong>Change Password:</strong> <span className="text-blue-500 cursor-pointer">Click Here</span>
             </p>
-            <p className="text-gray-700 mb-2">
-              <strong>Two-Factor Authentication:</strong> <span className="text-blue-500 cursor-pointer">Enable/Disable</span>
-            </p>
-            <p className="text-gray-700 mb-2">
-              <strong>Manage Subscriptions:</strong> <span className="text-blue-500 cursor-pointer">View/Edit</span>
-            </p>
-            <p className="text-gray-700">
-              <strong>Privacy Settings:</strong> <span className="text-blue-500 cursor-pointer">Configure</span>
-            </p>
+          
           </div>
 
         
         </div>
       </div>
     </div>
+    <Footer/>
+    </>
   );
 };
 

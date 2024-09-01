@@ -5,9 +5,13 @@ import LoginPage from './components/LoginPage/LoginPage.jsx'
 import SignUpPage from './components/SignUpPage/SignUpPage.jsx'
 import RecipeView from './components/RecipePage/RecipeView.jsx'
 import UserProfile from './components/user/userProfile.jsx'
+import AddRecipe from './components/RecipePage/AddRecipe.jsx'
 
 import { createBrowserRouter,RouterProvider } from 'react-router-dom'
 import '../src/index.css'
+import Home from './components/HomePage/Home.jsx'
+import ViewRecipe from './components/RecipePage/ViewRecipe.jsx'
+import MealPlan from './components/MealPlan.jsx'
 
 
 
@@ -15,7 +19,7 @@ import '../src/index.css'
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App/>,
+    element: <Home/>,
   },
   {
     path: "/login",
@@ -27,11 +31,23 @@ const router = createBrowserRouter([
   },
   {
     path: "/recipes",
-    element: <RecipeView/>
+    element: <ViewRecipe/>
   },
+  {
+    path: "/viewRecipe/:id",
+    element: <RecipeView/> 
+    },
   {
     path: "/user/profile",
     element: <UserProfile/>
+  },
+  {
+    path:"/createRecipe",
+    element:<AddRecipe/>
+  },
+  {
+    path:"/meal-plan",
+    element:<MealPlan/>
   }
 ]);
 

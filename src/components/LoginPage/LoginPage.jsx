@@ -1,8 +1,12 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import Header from "../Header";
 import Footer from "../Footer";
 import food from "../../assets/food.jpg";
+import {Axios} from "../../../services/AxiosInstance"
+import Cookies from "js-cookie"
 
 const LoginPage = () => {
   const {
@@ -10,9 +14,23 @@ const LoginPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
+  
+  const navigate = useNavigate(); // useNavigate hook for redirection
 
-  const onSubmit = (data) => {
-    console.log("Login Submitted", data);
+  const onSubmit = async (data) => {
+    try {
+      const response = await Axios.post("/admin/login", data);
+
+      if (response.data.success) {
+        Cookies.set("token", response.data.token); // Store the token
+        navigate("/"); // Redirect to the recipes page
+      } else {
+        alert("Login failed: " + response.data.message); // Show error message
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("An error occurred during login. Please try again.");
+    }
   };
 
   return (
