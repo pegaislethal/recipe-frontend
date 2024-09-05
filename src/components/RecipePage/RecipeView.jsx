@@ -3,19 +3,21 @@ import Header from "../Header";
 import Footer from "../Footer";
 import momo from "../../assets/momoimage.jpg";
 import { Axios } from "../../../services/AxiosInstance";
-import { useParams } from "react-router-dom";
+import { useParams, NavLink } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
+import { Rating } from "@material-tailwind/react";
 
 const RecipeView = () => {
   const params = useParams();
   const [recipeData, setRecipeData] = useState({});
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const getRecipeByID = async () => {
       try {
-        const response = await Axios.get(`/recipes/${params.id}`); 
-        setRecipeData(response.data); 
+        const response = await Axios.get(`/recipes/${params.id}`);
+        setRecipeData(response.data);
       } catch (err) {
         console.error("Error fetching recipes:", err);
         setError("Failed to fetch recipes. Please try again later.");
@@ -24,9 +26,8 @@ const RecipeView = () => {
       }
     };
 
-    getRecipeByID(); 
+    getRecipeByID();
   }, [params.id]);
-
 
   if (loading) {
     return <p>Loading recipes...</p>;
@@ -39,7 +40,11 @@ const RecipeView = () => {
   return (
     <>
       <Header />
-
+      <p className="ml-20 mt-5 text-[20px]">
+        <NavLink to="/recipes">
+          <FaArrowLeft />
+        </NavLink>
+      </p>
       <div className="container mx-auto mt-11 p-4 max-w-screen-lg">
         <div className="flex flex-col items-center mb-8">
           <img
@@ -51,7 +56,9 @@ const RecipeView = () => {
 
         <div className="flex flex-col md:flex-row justify-center items-start mb-12">
           <div className="flex-1 text-center md:text-left">
-            <h1 className="text-4xl font-bold text-red-600 mb-2">{recipeData.recipeTitle}</h1>
+            <h1 className="text-4xl font-bold text-red-600 mb-2">
+              {recipeData.recipeTitle}
+            </h1>
             <p className="text-yellow-500 text-lg font-semibold mb-4">
               {recipeData.recipeDesc}
             </p>
@@ -61,7 +68,8 @@ const RecipeView = () => {
               <strong>Preparation Time:</strong> {recipeData.preparationTime}
             </p>
             <p className="text-lg">
-              <strong>Chef:</strong>{recipeData.Chef}
+              <strong>Chef:</strong>
+              {recipeData.Chef}
             </p>
             <p className="text-lg">
               <strong>Calorie:</strong> 209 calories
@@ -77,19 +85,25 @@ const RecipeView = () => {
 
         <div className="flex flex-col md:flex-row justify-between mb-12">
           <div className="flex-1 md:mr-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Ingredients</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Ingredients
+            </h2>
             <ul className="list-disc list-inside text-gray-700 text-lg leading-relaxed">
-              {recipeData.Ingredients && recipeData.Ingredients.map((ingredient, index) => (
-                <li key={index}>{ingredient}</li>
-              ))}
+              {recipeData.Ingredients &&
+                recipeData.Ingredients.map((ingredient, index) => (
+                  <li key={index}>{ingredient}</li>
+                ))}
             </ul>
           </div>
           <div className="flex-1 md:ml-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Directions</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Directions
+            </h2>
             <ol className="list-decimal list-inside text-gray-700 text-lg leading-relaxed">
-              {recipeData.Directions && recipeData.Directions.map((direction, index) => (
-                <li key={index}>{direction}</li>
-              ))}
+              {recipeData.Directions &&
+                recipeData.Directions.map((direction, index) => (
+                  <li key={index}>{direction}</li>
+                ))}
             </ol>
           </div>
         </div>
@@ -97,6 +111,16 @@ const RecipeView = () => {
         <div className="text-center text-gray-700 italic">
           <p>Serve and Enjoy!</p>
         </div>
+      </div>
+      <div>
+        {" "}
+        <Rating
+          className=" w-6 h-6 flex "
+          value={4}
+                
+          
+        />
+        ;
       </div>
 
       <Footer />

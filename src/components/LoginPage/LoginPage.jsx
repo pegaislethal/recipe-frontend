@@ -1,12 +1,11 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import Cookies from "js-cookie"; // Import Cookies
 import Header from "../Header";
 import Footer from "../Footer";
 import food from "../../assets/food.jpg";
-import {Axios} from "../../../services/AxiosInstance"
-import Cookies from "js-cookie"
+import { Axios } from "../../../services/AxiosInstance";
 
 const LoginPage = () => {
   const {
@@ -14,22 +13,43 @@ const LoginPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  
+
   const navigate = useNavigate(); // useNavigate hook for redirection
 
   const onSubmit = async (data) => {
     try {
-      const response = await Axios.post("/admin/login", data);
+      // Determine the endpoint based on the selected role
+      const endpoint =
+        data.role === "admin"
+          ? "/admin/login"
+          : "/users/login";
+
+      // Directly send the login request to the appropriate endpoint
+      const response = await Axios.post(endpoint, {
+        email: data.email,
+        password: data.password,
+      });
 
       if (response.data.success) {
         Cookies.set("token", response.data.token); // Store the token
-        navigate("/"); // Redirect to the recipes page
+        navigate("/recipes"); // Redirect to the recipes page
       } else {
         alert("Login failed: " + response.data.message); // Show error message
       }
     } catch (err) {
       console.error("Login error:", err);
-      alert("An error occurred during login. Please try again.");
+
+      // Detailed error handling
+      if (err.response) {
+        console.error("Error response data:", err.response.data);
+        alert(`Login failed: ${err.response.data.message}`);
+      } else if (err.request) {
+        console.error("No response received:", err.request);
+        alert("Login failed: No response from the server.");
+      } else {
+        console.error("Error message:", err.message);
+        alert(`Login failed: ${err.message}`);
+      }
     }
   };
 
@@ -46,6 +66,7 @@ const LoginPage = () => {
           <div className="flex-1">
             <h1 className="text-center text-xl mb-3">Login</h1>
             <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
+             
               <div>
                 <label
                   className="block text-sm font-medium text-gray-700"
@@ -71,12 +92,39 @@ const LoginPage = () => {
               <div>
                 <label
                   className="block text-sm font-medium text-gray-700"
+                  htmlFor="role"
+                >
+                  Role
+                </label>
+                <select
+                  {...register("role", { required: "Role is required" })}
+                  id="role"
+                  className={`mt-1 block w-full p-2 border rounded-md text-sm ${
+                    errors.role ? "border-red-500" : "border-gray-300"
+                  }`}
+                >
+                  <option value="">Select your role</option>
+                  <option value="admin">Admin</option>
+                  <option value="user">User</option>
+                  <option value="chef">Chef</option>
+                </select>
+                {errors.role && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.role.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label
+                  className="block text-sm font-medium text-gray-700"
                   htmlFor="password"
                 >
                   Password
                 </label>
                 <input
-                  {...register("password", { required: "Password is required" })}
+                  {...register("password", {
+                    required: "Password is required",
+                  })}
                   type="password"
                   id="password"
                   className={`mt-1 block w-full p-2 border rounded-md text-sm ${

@@ -1,10 +1,11 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios"; // Import axios for HTTP requests
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie"; // Import Cookies
 import Header from "../Header";
 import Footer from "../Footer";
 import food from "../../assets/food.jpg";
-import {Axios} from "../../../services/AxiosInstance"
+import { Axios } from "../../../services/AxiosInstance";
 
 const SignUpPage = () => {
   const {
@@ -14,12 +15,27 @@ const SignUpPage = () => {
     formState: { errors },
   } = useForm();
 
+  const navigate = useNavigate(); // Import useNavigate for redirection
+
   const onSubmit = async (data) => {
     console.log("Submitting data:", data);
     try {
-      const response = await Axios.post("/admin/signup", data);
+      let response;
+
+      if (data.role === "admin") {
+        response = await Axios.post("/admin/signup", data);
+      } else {
+        response = await Axios.post("/users/signup", data);
+      }
+
       console.log("Form Submitted Successfully:", response.data);
-      alert("Signup successful!");
+
+      if (response.data.success) {
+        Cookies.set("token", response.data.token); // Store the token
+        navigate("/verifyOtp"); // Redirect to the recipes page
+      } else {
+        alert("Signup failed: " + response.data.message); // Show error message
+      }
     } catch (error) {
       console.error("There was an error signing up!", error);
       if (error.response) {
@@ -70,6 +86,30 @@ const SignUpPage = () => {
                 {errors.email && (
                   <p className="text-red-500 text-xs mt-1">
                     {errors.email.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label
+                  className="block text-sm font-medium text-gray-700"
+                  htmlFor="username"
+                >
+                  Username
+                </label>
+                <input
+                  {...register("name", {
+                    required: "Username is required",
+                  })}
+                  type="text"
+                  id="username"
+                  className={`mt-1 block w-full p-2 border rounded-md text-sm ${
+                    errors.username ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder="Enter your username"
+                />
+                {errors.username && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.username.message}
                   </p>
                 )}
               </div>
@@ -142,7 +182,9 @@ const SignUpPage = () => {
                   type="password"
                   id="confirm-password"
                   className={`mt-1 block w-full p-2 border rounded-md text-sm ${
-                    errors.confirmPassword ? "border-red-500" : "border-gray-300"
+                    errors.confirmPassword
+                      ? "border-red-500"
+                      : "border-gray-300"
                   }`}
                   placeholder="Confirm your password"
                 />

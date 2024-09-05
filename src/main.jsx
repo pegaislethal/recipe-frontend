@@ -12,6 +12,7 @@ import '../src/index.css'
 import Home from './components/HomePage/Home.jsx'
 import ViewRecipe from './components/RecipePage/ViewRecipe.jsx'
 import MealPlan from './components/MealPlan.jsx'
+import VerifyOtpPage from './components/SignUpPage/VerifyOtpPage.jsx'
 
 
 
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
   {
     path: "/signup",
     element: <SignUpPage/>
+  },
+  {
+    path: "/verifyOtp",
+    element: <VerifyOtpPage/>
   },
   {
     path: "/recipes",
@@ -52,7 +57,7 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+ 
    <RouterProvider router={router} />
-  </StrictMode>,
+  
 )
