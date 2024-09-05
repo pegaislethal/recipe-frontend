@@ -19,7 +19,8 @@ const Header = () => {
       }
       else{
         try {
-          const response = await Axios.get("/admin/currentAdmin");
+          const response = await Axios.get("/current");
+
 
           if (response.data) {
             setRole(response.data.data.role);
@@ -69,12 +70,12 @@ const Header = () => {
           >
             Recipes
           </NavLink>
-          <NavLink
+          {/* <NavLink
             to="/meal-plan"
             className="text-white text-lg font-medium hover:text-gray-200 transition-colors duration-300"
           >
             Meal Planner
-          </NavLink>
+          </NavLink> */}
 
           <NavLink
             to="/signup"
@@ -100,7 +101,7 @@ const Header = () => {
           >
             <FaBars className="text-2xl" />
             {/* Conditionally render username only if user is logged in */}
-            {token && userName && <span className="ml-2">{userName}</span>}
+            {userName && <span className="ml-2">{userName}</span>}
           </NavLink>
         </nav>
       </div>

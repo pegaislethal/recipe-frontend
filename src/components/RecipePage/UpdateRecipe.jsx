@@ -1,11 +1,13 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useForm, useFieldArray } from "react-hook-form";
 import Header from "../Header";
 import Footer from "../Footer";
 import { Axios } from "../../../services/AxiosInstance";
 
-const AddRecipe = () => {
+const UpdateRecipe = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -13,11 +15,13 @@ const AddRecipe = () => {
     reset,
     formState: { errors },
   } = useForm();
+
   const {
     fields: ingredients,
     append: addIngredient,
     remove: removeIngredient,
   } = useFieldArray({ control, name: "ingredients" });
+  
   const {
     fields: directions,
     append: addDirection,
@@ -27,6 +31,31 @@ const AddRecipe = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  useEffect(() => {
+    const fetchRecipe = async () => {
+      try {
+        const response = await Axios.patch(`/recipes/${id}/edit`);
+        const recipeData = response.data;
+
+        reset({
+          recipeTitle: recipeData.recipeTitle,
+          recipeDesc: recipeData.recipeDesc,
+          preparationTime: recipeData.preparationTime,
+          calorie: recipeData.calorie,
+          chef: recipeData.chef,
+          category: recipeData.category,
+          ingredients: recipeData.ingredients.map((ingredient) => ({ value: ingredient })),
+          directions: recipeData.directions.map((direction) => ({ value: direction })),
+        });
+      } catch (error) {
+        console.error("Error fetching recipe data:", error);
+        setError("Failed to fetch recipe data.");
+      }
+    };
+
+    fetchRecipe();
+  }, [id, reset]);
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -53,21 +82,22 @@ const AddRecipe = () => {
 
       // Append the image (if available)
       if (data.image && data.image[0]) {
-        formData.append("image", data.image[0]); // File is in data.image[0]
+        formData.append("image", data.image[0]);
       }
 
-      const response = await Axios.post("/recipes", formData, {
+      const response = await Axios.put(`/recipes/${id}`, formData, {
         headers: {
-          "Content-Type": "multipart/form-data", // Specify multipart form data
+          "Content-Type": "multipart/form-data",
         },
       });
 
-      setSuccess("Recipe added successfully!");
+      setSuccess("Recipe updated successfully!");
       console.log("Response:", response.data);
       reset(); // Reset the form after successful submission
+      navigate(`/recipes/${id}`); // Redirect to the recipe view page after update
     } catch (error) {
-      console.error("There was an error adding the recipe!", error);
-      setError("There was an error adding the recipe.");
+      console.error("There was an error updating the recipe!", error);
+      setError("There was an error updating the recipe.");
     } finally {
       setLoading(false);
     }
@@ -77,7 +107,7 @@ const AddRecipe = () => {
     <div className="flex flex-col min-h-screen">
       <Header />
       <div className="max-w-lg mx-auto p-4 flex-grow">
-        <h2 className="text-2xl font-bold mb-4">Add Recipe</h2>
+        <h2 className="text-2xl font-bold mb-4">Update Recipe</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           {/* Recipe Title */}
           <div className="mb-4">
@@ -109,9 +139,7 @@ const AddRecipe = () => {
 
           {/* Preparation Time */}
           <div className="mb-4">
-            <label className="block text-gray-700">
-              Preparation Time (minutes)
-            </label>
+            <label className="block text-gray-700">Preparation Time (minutes)</label>
             <input
               type="number"
               {...register("preparationTime", {
@@ -130,7 +158,7 @@ const AddRecipe = () => {
             <label className="block text-gray-700">Calorie (kcal)</label>
             <input
               type="number"
-              {...register("Calorie", { required: "Calorie is required" })}
+              {...register("calorie", { required: "Calorie is required" })}
               className="w-full p-2 border border-gray-300 rounded mt-1"
             />
             {errors.calorie && (
@@ -215,9 +243,6 @@ const AddRecipe = () => {
               {...register("category", { required: "Category is required" })}
               className="w-full p-2 border border-gray-300 rounded mt-1"
             />
-            <small className="text-gray-500">
-              Separate categories with commas
-            </small>
             {errors.category && (
               <p className="text-red-500">{errors.category.message}</p>
             )}
@@ -228,21 +253,21 @@ const AddRecipe = () => {
             <label className="block text-gray-700">Upload Image</label>
             <input
               type="file"
-              accept="image/*"
               {...register("image")}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
+              className="mt-1"
             />
           </div>
 
-          {loading && <p className="text-blue-500">Submitting...</p>}
-          {success && <p className="text-green-500">{success}</p>}
+          {/* Loading State */}
+          {loading && <p>Loading...</p>}
+          {/* Error Message */}
           {error && <p className="text-red-500">{error}</p>}
+          {/* Success Message */}
+          {success && <p className="text-green-500">{success}</p>}
 
-          <button
-            type="submit"
-            className="bg-blue-500 text-white p-2 rounded mb-4"
-          >
-            Submit
+          {/* Submit Button */}
+          <button type="submit" className="bg-blue-500 text-white p-2 rounded mt-4">
+            Update Recipe
           </button>
         </form>
       </div>
@@ -251,4 +276,4 @@ const AddRecipe = () => {
   );
 };
 
-export default AddRecipe;
+export default UpdateRecipe;

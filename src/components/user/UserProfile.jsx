@@ -1,13 +1,49 @@
-import React from "react";
+import React,{useState,useEffect} from "react";
 import user from "../../assets/user.png";
 import { FaArrowLeft } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { Axios } from "../../../services/AxiosInstance";
 import Footer from "../Footer";
 import Header from "../Header";
 import Cookies from "js-cookie";
 
 const UserProfile = () => {
   const navigate = useNavigate(); // Initialize useNavigate
+  const [role, setRole] = useState("user"); // State to hold user role
+  const [userName, setUserName] = useState(""); // State to hold user name
+  const [email, setEmail] = useState("");
+
+
+  const token = Cookies.get("token");
+
+useEffect (()=>{
+  const getUser = async ()=>{
+    console.log(token);
+      if (!token) {
+        console.log("There is no user loginned i.e, no token ")
+      }else{
+        try {
+          
+          const response = await Axios.get("/current");
+
+          if (response.data) {
+            setUserName(response.data.data.username);
+            setEmail(response.data.data.email); 
+            setRole(response.data.data.role)
+          }
+          else{
+            console.log("Error fetching data")
+          }
+        } catch (error) {
+          console.error("Error :", error);
+        
+        }
+       
+      }
+      }
+      getUser();
+  
+},[token] )
 
   // Logout function
   const handleLogout = () => {
@@ -51,22 +87,23 @@ const UserProfile = () => {
                 </button>
               </div>
               <p className="text-gray-700 mb-2">
-                <strong>Username:</strong> <span>John Doe</span>
+                <strong>Username:</strong> <span>{userName}</span>
               </p>
               <p className="text-gray-700 mb-2">
-                <strong>Email:</strong> <span>john.doe@example.com</span>
+                <strong>Email:</strong> <span>{email}</span>
               </p>
-              <p className="text-gray-700">
-                <strong>Phone:</strong> <span>123-456-7890</span>
+              <p className="text-gray-700 mb-2">
+                <strong>Role:</strong> <span>{role}</span>
               </p>
+             
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+            {/* <div className="bg-white p-6 rounded-lg shadow-md mb-8">
               <h2 className="text-2xl font-semibold text-gray-800 mb-4">Address</h2>
               <p className="text-gray-700">
                 <strong>City:</strong> <span>New York</span>
               </p>
-            </div>
+            </div> */}
 
             <div className="bg-white p-6 rounded-lg shadow-md mb-8">
               <h2 className="text-2xl font-semibold text-gray-800 mb-4">Account Settings</h2>
