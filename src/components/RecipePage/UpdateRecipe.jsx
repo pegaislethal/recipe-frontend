@@ -8,6 +8,7 @@ import { Axios } from "../../../services/AxiosInstance";
 const UpdateRecipe = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -21,7 +22,7 @@ const UpdateRecipe = () => {
     append: addIngredient,
     remove: removeIngredient,
   } = useFieldArray({ control, name: "ingredients" });
-  
+
   const {
     fields: directions,
     append: addDirection,
@@ -35,7 +36,7 @@ const UpdateRecipe = () => {
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
-        const response = await Axios.patch(`/recipes/${id}/edit`);
+        const response = await Axios.get(`/recipes/${id}`);
         const recipeData = response.data;
 
         reset({
@@ -45,8 +46,8 @@ const UpdateRecipe = () => {
           calorie: recipeData.calorie,
           chef: recipeData.chef,
           category: recipeData.category,
-          ingredients: recipeData.ingredients.map((ingredient) => ({ value: ingredient })),
-          directions: recipeData.directions.map((direction) => ({ value: direction })),
+          ingredients: recipeData.ingredients || [],
+          directions: recipeData.directions || [],
         });
       } catch (error) {
         console.error("Error fetching recipe data:", error);
@@ -63,32 +64,16 @@ const UpdateRecipe = () => {
     setSuccess("");
 
     try {
-      const formData = new FormData();
-      formData.append("recipeTitle", data.recipeTitle);
-      formData.append("recipeDesc", data.recipeDesc);
-      formData.append("preparationTime", data.preparationTime);
-      formData.append("calorie", data.calorie);
-      formData.append("chef", data.chef);
-      formData.append("category", data.category);
-
-      // Append ingredients and directions as arrays
-      data.ingredients.forEach((ingredient, index) => {
-        formData.append(`ingredients[${index}]`, ingredient.value);
-      });
-
-      data.directions.forEach((direction, index) => {
-        formData.append(`directions[${index}]`, direction.value);
-      });
-
-      // Append the image (if available)
-      if (data.image && data.image[0]) {
-        formData.append("image", data.image[0]);
-      }
-
-      const response = await Axios.put(`/recipes/${id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      // Submitting data as JSON object
+      const response = await Axios.patch(`/recipes/${id}`, {
+        recipeTitle: data.recipeTitle,
+        recipeDesc: data.recipeDesc,
+        preparationTime: data.preparationTime,
+        calorie: data.Calorie,
+        chef: data.Chef,
+        category: data.category,
+        ingredients: data.ingredients.map((ingredient) => ingredient.value),
+        directions: data.directions.map((direction) => direction.value),
       });
 
       setSuccess("Recipe updated successfully!");
@@ -113,28 +98,20 @@ const UpdateRecipe = () => {
           <div className="mb-4">
             <label className="block text-gray-700">Recipe Title</label>
             <input
-              {...register("recipeTitle", {
-                required: "Recipe Title is required",
-              })}
+              {...register("recipeTitle", { required: "Recipe Title is required" })}
               className="w-full p-2 border border-gray-300 rounded mt-1"
             />
-            {errors.recipeTitle && (
-              <p className="text-red-500">{errors.recipeTitle.message}</p>
-            )}
+            {errors.recipeTitle && <p className="text-red-500">{errors.recipeTitle.message}</p>}
           </div>
 
           {/* Recipe Description */}
           <div className="mb-4">
             <label className="block text-gray-700">Recipe Description</label>
             <textarea
-              {...register("recipeDesc", {
-                required: "Recipe Description is required",
-              })}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
+              {...register("recipeDesc", { required: "Recipe Description is required" })}
+              className="w-[400px] p-2 border border-gray-300 rounded mt-1"
             />
-            {errors.recipeDesc && (
-              <p className="text-red-500">{errors.recipeDesc.message}</p>
-            )}
+            {errors.recipeDesc && <p className="text-red-500">{errors.recipeDesc.message}</p>}
           </div>
 
           {/* Preparation Time */}
@@ -142,15 +119,10 @@ const UpdateRecipe = () => {
             <label className="block text-gray-700">Preparation Time (minutes)</label>
             <input
               type="number"
-              {...register("preparationTime", {
-                required: "Preparation Time is required",
-                min: 1,
-              })}
+              {...register("preparationTime", { required: "Preparation Time is required", min: 1 })}
               className="w-full p-2 border border-gray-300 rounded mt-1"
             />
-            {errors.preparationTime && (
-              <p className="text-red-500">{errors.preparationTime.message}</p>
-            )}
+            {errors.preparationTime && <p className="text-red-500">{errors.preparationTime.message}</p>}
           </div>
 
           {/* Calorie */}
@@ -161,9 +133,7 @@ const UpdateRecipe = () => {
               {...register("calorie", { required: "Calorie is required" })}
               className="w-full p-2 border border-gray-300 rounded mt-1"
             />
-            {errors.calorie && (
-              <p className="text-red-500">{errors.calorie.message}</p>
-            )}
+            {errors.calorie && <p className="text-red-500">{errors.calorie.message}</p>}
           </div>
 
           {/* Chef */}
@@ -173,9 +143,7 @@ const UpdateRecipe = () => {
               {...register("chef", { required: "Chef name is required" })}
               className="w-full p-2 border border-gray-300 rounded mt-1"
             />
-            {errors.chef && (
-              <p className="text-red-500">{errors.chef.message}</p>
-            )}
+            {errors.chef && <p className="text-red-500">{errors.chef.message}</p>}
           </div>
 
           {/* Ingredients */}
@@ -184,9 +152,7 @@ const UpdateRecipe = () => {
             {ingredients.map((item, index) => (
               <div key={item.id} className="flex items-center mb-2">
                 <input
-                  {...register(`ingredients.${index}.value`, {
-                    required: "Ingredient is required",
-                  })}
+                  {...register(`ingredients.${index}.value`, { required: "Ingredient is required" })}
                   className="w-full p-2 border border-gray-300 rounded mt-1"
                 />
                 <button
@@ -213,9 +179,7 @@ const UpdateRecipe = () => {
             {directions.map((item, index) => (
               <div key={item.id} className="flex items-center mb-2">
                 <textarea
-                  {...register(`directions.${index}.value`, {
-                    required: "Direction is required",
-                  })}
+                  {...register(`directions.${index}.value`, { required: "Direction is required" })}
                   className="w-full p-2 border border-gray-300 rounded mt-1"
                 />
                 <button
@@ -243,19 +207,7 @@ const UpdateRecipe = () => {
               {...register("category", { required: "Category is required" })}
               className="w-full p-2 border border-gray-300 rounded mt-1"
             />
-            {errors.category && (
-              <p className="text-red-500">{errors.category.message}</p>
-            )}
-          </div>
-
-          {/* Image Upload */}
-          <div className="mb-4">
-            <label className="block text-gray-700">Upload Image</label>
-            <input
-              type="file"
-              {...register("image")}
-              className="mt-1"
-            />
+            {errors.category && <p className="text-red-500">{errors.category.message}</p>}
           </div>
 
           {/* Loading State */}

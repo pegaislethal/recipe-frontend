@@ -13,7 +13,7 @@ const Header = () => {
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
-      console.log(token);
+      // console.log(token);
       if (!token) {
         setUserName("");
       }

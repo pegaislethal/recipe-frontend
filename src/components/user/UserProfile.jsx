@@ -12,6 +12,7 @@ const UserProfile = () => {
   const [role, setRole] = useState("user"); // State to hold user role
   const [userName, setUserName] = useState(""); // State to hold user name
   const [email, setEmail] = useState("");
+  const [info, setInfo] = useState("");
 
 
   const token = Cookies.get("token");
@@ -21,9 +22,10 @@ useEffect (()=>{
     console.log(token);
       if (!token) {
         console.log("There is no user loginned i.e, no token ")
+        setInfo("Please sign in")
+
       }else{
         try {
-          
           const response = await Axios.get("/current");
 
           if (response.data) {
@@ -67,7 +69,7 @@ useEffect (()=>{
             </NavLink>
           </li>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">User Profile</h1>
-          <p className="text-gray-600">This is a user profile page.</p>
+          <p className="text-red-600">{info}</p>
         </div>
 
         <div className="flex items-start mb-8">
@@ -82,9 +84,9 @@ useEffect (()=>{
             <div className="bg-white p-6 rounded-lg shadow-md mb-8">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold text-gray-800">Basic Info</h2>
-                <button className="bg-blue-500 text-white py-1 px-4 rounded hover:bg-blue-600">
+                {/* <button className="bg-blue-500 text-white py-1 px-4 rounded hover:bg-blue-600">
                   Edit Profile
-                </button>
+                </button> */}
               </div>
               <p className="text-gray-700 mb-2">
                 <strong>Username:</strong> <span>{userName}</span>

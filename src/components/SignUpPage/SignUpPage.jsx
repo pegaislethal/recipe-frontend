@@ -75,6 +75,7 @@ const SignUpPage = () => {
                   Email
                 </label>
                 <input
+    
                   {...register("email", { required: "Email is required" })}
                   type="email"
                   id="email"

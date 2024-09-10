@@ -3,25 +3,29 @@ import Header from "../Header";
 import Footer from "../Footer";
 import momo from "../../assets/momoimage.jpg";
 import { Axios } from "../../../services/AxiosInstance";
-import { useParams, NavLink, useNavigate } from "react-router-dom"; // Add useNavigate
+import { useParams, NavLink, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { Rating } from "@material-tailwind/react";
 
 const RecipeView = () => {
   const params = useParams();
-  const navigate = useNavigate(); // Initialize useNavigate hook
+  const navigate = useNavigate();
   const [recipeData, setRecipeData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [reviews, setReviews] = useState([]);
   const [newRating, setNewRating] = useState(0);
   const [newComment, setNewComment] = useState("");
+  const [role, setRole] = useState(null); // State to hold user role
 
   useEffect(() => {
     const getRecipeByID = async () => {
       try {
         const response = await Axios.get(`/recipes/${params.id}`);
-        setRecipeData(response.data);
+        const currentUser = await Axios.get("/current");
+        console.log(currentUser);
+        setRole(await currentUser?.data.data.role);
+        setRecipeData(await response.data);
       } catch (err) {
         console.error("Error fetching recipes:", err);
         setError("Failed to fetch recipes. Please try again later.");
@@ -30,27 +34,27 @@ const RecipeView = () => {
       }
     };
 
-    const getReviews = async () => {
-      try {
-        const response = await Axios.get(`/recipes/${params.id}/reviews`);
-        setReviews(response.data);
-      } catch (err) {
-        console.error("Error fetching reviews:", err);
-      }
-    };
-
     getRecipeByID();
-    getReviews();
+    // getReviews();
   }, [params.id]);
+
+  // const getReviews = async () => {
+  //   try {
+  //     const response = await Axios.pos(`/recipes/reviews/${params.id}`);
+  //     setReviews(response.data);
+  //   } catch (err) {
+  //     console.error("Error fetching reviews:", err);
+  //   }
+  // };
 
   // Submit review function
   const submitReview = async () => {
     try {
-      await Axios.post(`/recipes/${params.id}/reviews`, {
+      await Axios.post(`/recipes/reviews/${params.id}`, {
         rating: newRating,
         comment: newComment,
       });
-      const updatedReviews = await Axios.get(`/recipes/${params.id}/reviews`);
+      const updatedReviews = await Axios.get(`/recipes/reviews/${params.id}`);
       setReviews(updatedReviews.data);
       setNewRating(0);
       setNewComment("");
@@ -62,17 +66,18 @@ const RecipeView = () => {
   // Delete recipe function
   const deleteRecipe = async () => {
     try {
+      console.log(`${params.id}`);
       await Axios.delete(`/recipes/${params.id}`);
-      navigate("/recipes"); 
+      alert("Recipes deleted successfully");
+      navigate("/recipes");
     } catch (err) {
       console.error("Error deleting recipe:", err);
     }
   };
 
   const updateRecipe = async () => {
-    navigate(`/recipe/${params.id}/edit`);
+    navigate(`/recipes/edit/${params.id}`);
   };
-  
 
   if (loading) {
     return <p>Loading recipes...</p>;
@@ -117,15 +122,9 @@ const RecipeView = () => {
               <strong>Chef:</strong> {recipeData.Chef}
             </p>
             <p className="text-lg">
-              <strong>Calorie:</strong> 209 calories
+              <strong>Calorie:</strong> {recipeData.Calorie} calories
             </p>
           </div>
-        </div>
-
-        <div className="text-center mb-8">
-          <button className="bg-orange-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-orange-600">
-            Add in your meal plan
-          </button>
         </div>
 
         {/* Ingredients and Directions */}
@@ -142,7 +141,9 @@ const RecipeView = () => {
             </ul>
           </div>
           <div className="flex-1 md:ml-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Directions</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Directions
+            </h2>
             <ol className="list-decimal list-inside text-gray-700 text-lg leading-relaxed">
               {recipeData.Directions &&
                 recipeData.Directions.map((direction, index) => (
@@ -161,7 +162,10 @@ const RecipeView = () => {
           <h2 className="text-2xl font-bold mb-4">Reviews</h2>
           {reviews.length > 0 ? (
             reviews.map((review, index) => (
-              <div key={index} className="border-t border-gray-300 py-4 text-lg">
+              <div
+                key={index}
+                className="border-t border-gray-300 py-4 text-lg"
+              >
                 <p>
                   <strong>{review.name}:</strong> {review.comment}
                 </p>
@@ -200,19 +204,24 @@ const RecipeView = () => {
           </button>
 
           {/* Delete Button */}
-          <button
-            onClick={deleteRecipe}
-            className="bg-red-500 text-white m-2 px-4 py-2 rounded-md"
-          >
-            Delete Recipe
-          </button>
-          {/*Update */ }
-          <button
-            onClick={updateRecipe}
-            className="bg-red-500 text-white m-2 px-4 py-2 rounded-md"
-          >
-            Update Recipe
-          </button>
+          {role === "admin" && (
+            <button
+              onClick={deleteRecipe}
+              className="bg-red-500 text-white m-2 px-4 py-2 rounded-md"
+            >
+              Delete Recipe
+            </button>
+          )}
+
+          {/* Update Button */}
+          {role === "admin" && (
+            <button
+              onClick={updateRecipe}
+              className="bg-green-500 text-white m-2 px-4 py-2 rounded-md"
+            >
+              Update Recipe
+            </button>
+          )}
         </div>
       </div>
       <Footer />

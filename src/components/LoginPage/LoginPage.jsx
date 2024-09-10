@@ -75,12 +75,14 @@ const LoginPage = () => {
                   Email
                 </label>
                 <input
-                  {...register("email", { required: "Email is required" })}
-                  type="email"
-                  id="email"
-                  className={`mt-1 block w-full p-2 border rounded-md text-sm ${
-                    errors.email ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className="mt-1 block w-full p-2 border rounded-md text-sm"
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                      message: "Please enter a valid email address",
+                    },
+                  })}
                   placeholder="Enter your email"
                 />
                 {errors.email && (
