@@ -32,12 +32,12 @@ const AddRecipe = () => {
       
       // Append ingredients
       data.ingredients.forEach((ingredient) => {
-        formData.append("ingredients", ingredient.value);
+        formData.append("Ingredients", ingredient.value);
       });
   
       // Append directions
       data.directions.forEach((direction) => {
-        formData.append("directions", direction.value);
+        formData.append("Directions", direction.value);
       });
   
       // Append the uploaded image

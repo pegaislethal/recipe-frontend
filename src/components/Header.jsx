@@ -16,11 +16,9 @@ const Header = () => {
       // console.log(token);
       if (!token) {
         setUserName("");
-      }
-      else{
+      } else {
         try {
           const response = await Axios.get("/current");
-
 
           if (response.data) {
             setRole(response.data.data.role);
@@ -30,7 +28,6 @@ const Header = () => {
           console.error("Error fetching user data:", error);
           setRole(null);
         }
-       
       }
     };
 
@@ -70,19 +67,15 @@ const Header = () => {
           >
             Recipes
           </NavLink>
-          {/* <NavLink
-            to="/meal-plan"
-            className="text-white text-lg font-medium hover:text-gray-200 transition-colors duration-300"
-          >
-            Meal Planner
-          </NavLink> */}
 
-          <NavLink
-            to="/signup"
-            className="text-white text-lg font-medium hover:text-gray-200 transition-colors duration-300"
-          >
-            SignUp
-          </NavLink>
+          {!token && (
+            <NavLink
+              to="/signup"
+              className="text-white text-lg font-medium hover:text-gray-200 transition-colors duration-300"
+            >
+              SignUp
+            </NavLink>
+          )}
 
           {/* Add Recipe Link (visible only to admins) */}
           {role === "admin" && (

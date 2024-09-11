@@ -24,10 +24,11 @@ const RecipeView = () => {
         const response = await Axios.get(`/recipes/${params.id}`);
         const currentUser = await Axios.get("/current");
         console.log(currentUser);
+        console.log(recipeData)
         setRole(await currentUser?.data.data.role);
         setRecipeData(await response.data);
       } catch (err) {
-        console.error("Error fetching recipes:", err);
+        console.error("Error fetching recipes ", err);
         setError("Failed to fetch recipes. Please try again later.");
       } finally {
         setLoading(false);
@@ -35,17 +36,17 @@ const RecipeView = () => {
     };
 
     getRecipeByID();
-    // getReviews();
+    getReviews();
   }, [params.id]);
 
-  // const getReviews = async () => {
-  //   try {
-  //     const response = await Axios.pos(`/recipes/reviews/${params.id}`);
-  //     setReviews(response.data);
-  //   } catch (err) {
-  //     console.error("Error fetching reviews:", err);
-  //   }
-  // };
+  const getReviews = async () => {
+    try {
+      const response = await Axios.post(`/recipes/reviews/${params.id}`);
+      setReviews(response.data);
+    } catch (err) {
+      console.error("Error fetching reviews:", err);
+    }
+  };
 
   // Submit review function
   const submitReview = async () => {
@@ -99,7 +100,7 @@ const RecipeView = () => {
         {/* Recipe details */}
         <div className="flex flex-col items-center mb-8">
           <img
-            src={momo}
+            src={recipeData.Image}
             alt="Momo"
             className="w-full md:w-1/2 max-w-md rounded-lg shadow-md mb-6"
           />
