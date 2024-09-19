@@ -88,7 +88,7 @@ const UserProfile = () => {
                 </p>
               </div>
 
-              <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+              {/* <div className="bg-white p-6 rounded-lg shadow-md mb-8">
                 <h2 className="text-2xl font-semibold text-gray-800 mb-4">
                   Account Settings
                 </h2>
@@ -98,9 +98,9 @@ const UserProfile = () => {
                     Click Here
                   </span>
                 </p>
-              </div>
+              </div> */}
 
-              <div className="text-center mb-4">
+              <div className="text-center mb-4 flex ml-36">
                 <button
                   onClick={handleLogout}
                   className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"

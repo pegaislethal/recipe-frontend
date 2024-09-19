@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Header from "../Header";
 import Footer from "../Footer";
-import momo from "../../assets/momoimage.jpg";
 import { Axios } from "../../../services/AxiosInstance";
 import { useParams, NavLink, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
-import { Rating } from "@material-tailwind/react";
+import Rating from "@mui/material/Rating";
+import Cookies from "js-cookie"; // Import Cookies for token management
 
 const RecipeView = () => {
   const params = useParams();
@@ -17,31 +17,12 @@ const RecipeView = () => {
   const [newRating, setNewRating] = useState(0);
   const [newComment, setNewComment] = useState("");
   const [role, setRole] = useState(null); // State to hold user role
+  const [userName, setUserName] = useState("");
 
-  useEffect(() => {
-    const getRecipeByID = async () => {
-      try {
-        const response = await Axios.get(`/recipes/${params.id}`);
-        console.log("Recipe response:", response.data); // Log response data
-        const currentUser = await Axios.get("/current"); // Fetch current user
-        setRole(currentUser?.data.data.role);
-        setRecipeData(response.data);
-        getReviews(); // Call this after getting the recipe
-      } catch (err) {
-        console.error("Error fetching recipe:", err); // Log specific error
-        setError("Failed to fetch recipe. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    getRecipeByID();
-  }, [params.id]);
-
-  const getReviews = async () => {
+  const getReviews = async (id) => {
     try {
-      // console.log(params.id);
-      const response = await Axios.get(`/recipes/reviews/${params.id}`);
+      const response = await Axios.get(`/recipes/reviews/${id}`);
       if (response.data) {
         setReviews(response.data);
       } else {
@@ -52,15 +33,68 @@ const RecipeView = () => {
     }
   };
 
+  // Function to fetch the current user and recipe data
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      const token = Cookies.get("token"); // Retrieve token inside the effect
+      if (!token) {
+        setUserName("");
+      } else {
+        try {
+          const response = await Axios.get("/current");
+          if (response.data) {
+            setUserName(response.data.data.username);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
+    };
+
+    const getRecipeByID = async () => {
+      try {
+        const response = await Axios.get(`/recipes/${params.id}`);
+        const currentUser = await Axios.get("/current");
+        setRole(currentUser?.data.data.role);
+        setRecipeData(response.data);
+      } catch (err) {
+        setError("Failed to fetch recipe. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+   
+    getRecipeByID();
+    getReviews(params.id);
+    fetchCurrentUser();
+  }, [params.id]);
+
   // Submit review function
   const submitReview = async () => {
+    const token = Cookies.get("token"); // Retrieve token from cookies here
+    if (!token) {
+      console.error("No token found. Please log in.");
+      return;
+    }
+
     try {
-      await Axios.post(`/recipes/reviews/${params.id}`, {
-        rating: newRating,
-        reviewText: newComment, // Ensure to use reviewText instead of comment
-      });
-      console.log(newRating);
-      await getReviews(); // Fetch updated reviews after submission
+      await Axios.post(
+        `/recipes/reviews/${params.id}`,
+        {
+          rating: newRating,
+          reviewText: newComment,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Pass token in headers
+          },
+        }
+      );
+      // Fetch updated reviews after submission
+      await getReviews(params.id);
+
+      // Reset rating and comment input
       setNewRating(0);
       setNewComment("");
     } catch (err) {
@@ -78,6 +112,31 @@ const RecipeView = () => {
       console.error("Error deleting recipe:", err);
     }
   };
+
+  const deleteReview = async (reviewId) => { // Pass the review ID as an argument
+    const token = Cookies.get("token"); // Retrieve token from cookies
+    if (!token) {
+      console.error("No token found. Please log in.");
+      return;
+    }
+    
+    try {
+      // Call delete API with the review ID
+      const response = await Axios.delete(`/recipes/reviews/${reviewId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Pass token in headers
+        },
+      });
+      
+      alert(response.data.message); // Show success message from server response
+      // Optionally, you may want to refresh the reviews list here
+    } catch (err) {
+      console.error("Error deleting review:", err);
+      // You can also display an alert or error message to the user
+      alert("Failed to delete review. Please try again.");
+    }
+  };
+  
 
   const updateRecipe = async () => {
     navigate(`/recipes/edit/${params.id}`);
@@ -171,10 +230,32 @@ const RecipeView = () => {
                 className="border-t border-gray-300 py-4 text-lg"
               >
                 <p>
-                  <strong>{review.name}:</strong> {review.comment}
+                  <strong>
+                    {userName && (
+                      <span className="ml-2 capitalize ">{userName}</span>
+                    )}
+                    :
+                  </strong>{" "}
+                  {review?.reviewText || "No comment"}{role === "admin" && (
+            <button
+              onClick={()=>deleteReview(review._id)}
+              className="bg-red-500 text-white m-2 px-4 py-2 rounded-md right-0"
+            >
+              Delete Reviews
+            </button>
+          )}
                 </p>
                 <div className="flex">
-                  <Rating value={review.rating} readonly />
+                
+                  <Rating
+                    name="read-only"
+                    value={review?.rating || 0}
+                    readOnly
+                    onChange={(event, newValue) => {
+                      setValue(newValue);
+                    }}
+                  />
+                  {/* <Rating  readonly /> */}
                 </div>
               </div>
             ))
@@ -189,7 +270,13 @@ const RecipeView = () => {
           <div className="mb-4">
             <label className="block mb-2 text-lg">Rating:</label>
             <div className="flex">
-              <Rating value={newRating} onChange={setNewRating} />
+            <Rating
+        name="simple-controlled"
+        value={newRating}
+        onChange={(event, newValue) => {
+          setNewRating(newValue);
+        }}
+      />
             </div>
           </div>
           <div className="mb-4">
