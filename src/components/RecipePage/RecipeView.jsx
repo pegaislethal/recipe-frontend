@@ -22,27 +22,31 @@ const RecipeView = () => {
     const getRecipeByID = async () => {
       try {
         const response = await Axios.get(`/recipes/${params.id}`);
-        const currentUser = await Axios.get("/current");
-        console.log(currentUser);
-        console.log(recipeData)
-        setRole(await currentUser?.data.data.role);
-        setRecipeData(await response.data);
+        console.log("Recipe response:", response.data); // Log response data
+        const currentUser = await Axios.get("/current"); // Fetch current user
+        setRole(currentUser?.data.data.role);
+        setRecipeData(response.data);
+        getReviews(); // Call this after getting the recipe
       } catch (err) {
-        console.error("Error fetching recipes ", err);
-        setError("Failed to fetch recipes. Please try again later.");
+        console.error("Error fetching recipe:", err); // Log specific error
+        setError("Failed to fetch recipe. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
 
     getRecipeByID();
-    getReviews();
   }, [params.id]);
 
   const getReviews = async () => {
     try {
-      const response = await Axios.post(`/recipes/reviews/${params.id}`);
-      setReviews(response.data);
+      // console.log(params.id);
+      const response = await Axios.get(`/recipes/reviews/${params.id}`);
+      if (response.data) {
+        setReviews(response.data);
+      } else {
+        setReviews([]);
+      }
     } catch (err) {
       console.error("Error fetching reviews:", err);
     }
@@ -53,17 +57,16 @@ const RecipeView = () => {
     try {
       await Axios.post(`/recipes/reviews/${params.id}`, {
         rating: newRating,
-        comment: newComment,
+        reviewText: newComment, // Ensure to use reviewText instead of comment
       });
-      const updatedReviews = await Axios.get(`/recipes/reviews/${params.id}`);
-      setReviews(updatedReviews.data);
+      console.log(newRating);
+      await getReviews(); // Fetch updated reviews after submission
       setNewRating(0);
       setNewComment("");
     } catch (err) {
       console.error("Error submitting review:", err);
     }
   };
-
   // Delete recipe function
   const deleteRecipe = async () => {
     try {

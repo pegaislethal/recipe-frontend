@@ -10,8 +10,10 @@ export const Axios = axios.create({
 Axios.interceptors.request.use(
   (config) => {
     const token = Cookies.get("token");
+    console.log('Request URL:', config.url); // Check the URL
+    console.log('Token present:', !!token);  // Check if the token is present
 
-    if (token) {
+    if (token && !config.url.includes('/recipes/')) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -19,5 +21,5 @@ Axios.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  },
+  }
 );

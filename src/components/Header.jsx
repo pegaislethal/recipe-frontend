@@ -88,14 +88,16 @@ const Header = () => {
           )}
 
           {/* User Profile Link */}
-          <NavLink
-            to="/user/profile"
-            className="text-white text-lg hover:text-gray-200 transition-colors duration-300 flex items-center"
-          >
-            <FaBars className="text-2xl" />
-            {/* Conditionally render username only if user is logged in */}
-            {userName && <span className="ml-2">{userName}</span>}
-          </NavLink>
+          {token && (
+            <NavLink
+              to="/user/profile"
+              className="text-white text-lg hover:text-gray-200 transition-colors duration-300 flex items-center"
+            >
+              <FaBars className="text-2xl" />
+              {/* Conditionally render username only if user is logged in */}
+              {userName && <span className="ml-2">{userName}</span>}
+            </NavLink>
+           )} 
         </nav>
       </div>
     </header>
