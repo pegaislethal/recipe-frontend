@@ -11,9 +11,12 @@ Axios.interceptors.request.use(
   (config) => {
     const token = Cookies.get("token");
     // console.log('Request URL:', config.url); // Check the URL
-    // console.log('Token present:', !!token);  // Check if the token is present
+    console.log('Token present:', !!token);  // Check if the token is present
 
-    if (token && !config.url.includes('/recipes/')) {
+    // if (token && !config.url.includes('/recipes/')) {
+    //   config.headers.Authorization = `Bearer ${token}`;
+    // }
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 

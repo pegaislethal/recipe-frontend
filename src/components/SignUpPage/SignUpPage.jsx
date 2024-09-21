@@ -1,7 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import Cookies from "js-cookie"; // Import Cookies
+import Cookies from "js-cookie";
 import Header from "../Header";
 import Footer from "../Footer";
 import food from "../../assets/food.jpg";
@@ -15,13 +15,14 @@ const SignUpPage = () => {
     formState: { errors },
   } = useForm();
 
-  const navigate = useNavigate(); // Import useNavigate for redirection
+  const navigate = useNavigate();
 
   const onSubmit = async (data) => {
-    console.log("Submitting data:", data);
     try {
       let response;
+      console.log("Selected role:", data.role);
 
+      // Check the role and send the appropriate API request
       if (data.role === "admin") {
         response = await Axios.post("/admin/signup", data);
       } else {
@@ -30,24 +31,27 @@ const SignUpPage = () => {
 
       console.log("Form Submitted Successfully:", response.data);
 
+      // Handle the response after signup
       if (response.data.success) {
-        Cookies.set("token", response.data.token); // Store the token
-        navigate("/verifyOtp"); // Redirect to the recipes page
+        console.log("Signup successful! Redirecting to OTP verification...");
+        Cookies.set("token", response.data.token); // Store the token in cookies
+        navigate("/verifyOtp"); // Redirect to OTP verification page
       } else {
-        alert("Signup failed: " + response.data.message); // Show error message
+        // If the signup fails, display the error message
+        alert("Signup failed: " + response.data.message);
       }
     } catch (error) {
       console.error("There was an error signing up!", error);
       if (error.response) {
-        // Server responded with a status other than 2xx
+        // Handle server error
         console.error("Error response data:", error.response.data);
         alert(`Signup failed: ${error.response.data.message}`);
       } else if (error.request) {
-        // Request was made but no response was received
+        // Handle no response from the server
         console.error("No response received:", error.request);
         alert("Signup failed: No response from the server.");
       } else {
-        // Something else caused the error
+        // Handle any other error
         console.error("Error message:", error.message);
         alert(`Signup failed: ${error.message}`);
       }
@@ -75,7 +79,6 @@ const SignUpPage = () => {
                   Email
                 </label>
                 <input
-    
                   {...register("email", { required: "Email is required" })}
                   type="email"
                   id="email"
@@ -130,7 +133,6 @@ const SignUpPage = () => {
                 >
                   <option value="">Select user type</option>
                   <option value="admin">Admin</option>
-                  <option value="editor">Chef</option>
                   <option value="user">User</option>
                 </select>
                 {errors.role && (
@@ -160,6 +162,7 @@ const SignUpPage = () => {
                     errors.password ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="Enter your password"
+                  autoComplete="new-password"
                 />
                 {errors.password && (
                   <p className="text-red-500 text-xs mt-1">
@@ -188,6 +191,7 @@ const SignUpPage = () => {
                       : "border-gray-300"
                   }`}
                   placeholder="Confirm your password"
+                  autoComplete="new-password"
                 />
                 {errors.confirmPassword && (
                   <p className="text-red-500 text-xs mt-1">

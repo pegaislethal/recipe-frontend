@@ -4,10 +4,12 @@ import { useForm, useFieldArray } from "react-hook-form";
 import Header from "../Header";
 import Footer from "../Footer";
 import { Axios } from "../../../services/AxiosInstance";
+import Cookies from "js-cookie";
 
 const UpdateRecipe = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const token = Cookies.get("token");
 
   const {
     register,
@@ -17,23 +19,26 @@ const UpdateRecipe = () => {
     formState: { errors },
   } = useForm();
 
-  const {
-    fields: ingredients,
-    append: addIngredient,
-    remove: removeIngredient,
-  } = useFieldArray({ control, name: "ingredients" });
+  const { fields: ingredients, append: addIngredient, remove: removeIngredient } = useFieldArray({
+    control,
+    name: "ingredients",
+  });
 
-  const {
-    fields: directions,
-    append: addDirection,
-    remove: removeDirection,
-  } = useFieldArray({ control, name: "directions" });
+  const { fields: directions, append: addDirection, remove: removeDirection } = useFieldArray({
+    control,
+    name: "directions",
+  });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
+    if (!token) {
+      navigate("/login"); // Redirect to login if token is not present
+      return;
+    }
+
     const fetchRecipe = async () => {
       try {
         const response = await Axios.get(`/recipes/${id}`);
@@ -56,7 +61,7 @@ const UpdateRecipe = () => {
     };
 
     fetchRecipe();
-  }, [id, reset]);
+  }, [id, reset, token, navigate]);
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -64,13 +69,12 @@ const UpdateRecipe = () => {
     setSuccess("");
 
     try {
-      // Submitting data as JSON object
       const response = await Axios.patch(`/recipes/${id}`, {
         recipeTitle: data.recipeTitle,
         recipeDesc: data.recipeDesc,
         preparationTime: data.preparationTime,
-        calorie: data.Calorie,
-        chef: data.Chef,
+        calorie: data.calorie, // Use 'calorie' not 'Calorie'
+        chef: data.chef, // Use 'chef' not 'Chef'
         category: data.category,
         ingredients: data.ingredients.map((ingredient) => ingredient.value),
         directions: data.directions.map((direction) => direction.value),
@@ -87,7 +91,6 @@ const UpdateRecipe = () => {
       setLoading(false);
     }
   };
-
   return (
     <div className="flex flex-col min-h-screen">
       <Header />

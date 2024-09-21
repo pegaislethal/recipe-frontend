@@ -6,20 +6,20 @@ import Footer from "../Footer";
 import { Axios } from "../../../services/AxiosInstance";
 
 const VerifyOtpPage = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
     try {
-      let response;
-      if (data.role === "admin") {
-        response = await Axios.post("/admin/verifyOtp", data);
-      } else {
-        response = await Axios.post("/users/verifyOtp", data);
-      }
+      const response = await Axios.post("/verifyOtp", data); // Use unified route
+
       if (response.data.success) {
         alert("OTP Verified Successfully!");
-        navigate("/login"); // Redirect to the next page after verification
+        navigate("/login"); // Redirect to login on success
       } else {
         alert("OTP verification failed: " + response.data.message);
       }
@@ -43,10 +43,7 @@ const VerifyOtpPage = () => {
           <h1 className="text-center text-xl mb-4">Verify OTP</h1>
           <form className="space-y-3 w-full" onSubmit={handleSubmit(onSubmit)}>
             <div>
-              <label
-                className="block text-sm font-medium text-gray-700"
-                htmlFor="email"
-              >
+              <label className="block text-sm font-medium text-gray-700" htmlFor="email">
                 Email
               </label>
               <input
@@ -66,10 +63,7 @@ const VerifyOtpPage = () => {
             </div>
 
             <div>
-              <label
-                className="block text-sm font-medium text-gray-700"
-                htmlFor="otp"
-              >
+              <label className="block text-sm font-medium text-gray-700" htmlFor="otp">
                 OTP Code
               </label>
               <input
@@ -90,10 +84,7 @@ const VerifyOtpPage = () => {
             </div>
 
             <div>
-              <label
-                className="block text-sm font-medium text-gray-700"
-                htmlFor="role"
-              >
+              <label className="block text-sm font-medium text-gray-700" htmlFor="role">
                 Role
               </label>
               <select

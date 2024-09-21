@@ -108,7 +108,7 @@ const LoginPage = () => {
                   <option value="">Select your role</option>
                   <option value="admin">Admin</option>
                   <option value="user">User</option>
-                  <option value="chef">Chef</option>
+                  {/* <option value="chef">Chef</option> */}
                 </select>
                 {errors.role && (
                   <p className="text-red-500 text-xs mt-1">
